@@ -3,9 +3,8 @@
 
 #include "../../render/render.h"
 #include "../../render/box.h"
-#include <chrono>
-#include <string>
-#include "kdtree.h"
+#include "cluster_impl.h"
+
 
 // Arguments:
 // window is the region to draw box around
@@ -18,7 +17,7 @@ pcl::visualization::PCLVisualizer::Ptr initScene(Box window, int zoom)
   	viewer->setCameraPosition(0, 0, zoom, 0, 1, 0);
   	viewer->addCoordinateSystem (1.0);
 
-  	viewer->addCube(window.x_min, window.x_max, window.y_min, window.y_max, 0, 0, 1, 1, 1, "window");
+  	viewer->addCube(window.x_min, window.x_max, window.y_min, window.y_max, 0, 0, 0, 0, 0, "window");
   	return viewer;
 }
 
@@ -75,17 +74,6 @@ void render2DTree(Node* node, pcl::visualization::PCLVisualizer::Ptr& viewer, Bo
 
 }
 
-std::vector<std::vector<int>> euclideanCluster(const std::vector<std::vector<float>>& points, KdTree* tree, float distanceTol)
-{
-
-	// TODO: Fill out this function to return list of indices for each cluster
-
-	std::vector<std::vector<int>> clusters;
- 
-	return clusters;
-
-}
-
 int main ()
 {
 
@@ -105,18 +93,18 @@ int main ()
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = CreateData(points);
 
 	KdTree* tree = new KdTree;
-  
-    for (int i=0; i<points.size(); i++) 
-    	tree->insert(points[i],i); 
+
+	normal_inserter(points,tree);
+	//median_inserter(points,tree,0);
 
   	int it = 0;
   	render2DTree(tree->root,viewer,window, it);
   
-  	std::cout << "Test Search" << std::endl;
-  	std::vector<int> nearby = tree->search({-6,7},3.0);
-  	for(int index : nearby)
-      std::cout << index << ",";
-  	std::cout << std::endl;
+//  	std::cout << "Test Search" << std::endl;
+//  	std::vector<int> nearby = tree->search({-6,7},3.0);
+//  	for(int index : nearby)
+//      std::cout << index << ",";
+//  	std::cout << std::endl;
 
   	// Time segmentation process
   	auto startTime = std::chrono::steady_clock::now();
